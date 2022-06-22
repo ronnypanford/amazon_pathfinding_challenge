@@ -1,5 +1,12 @@
 # amazon_pathfinding_challenge
 
+## Description
+Implementation of a pathfinding algorithm for Amazon’s self-driving delivery vehicles. The self-driving vehicle will need to create a path on a 2D-grid that contains a starting point (x,y), a delivery point (x,y) and a number of obstacles. The vehicle
+through this pathfinder can navigate to any of the adjacent squares (even diagonally), as long as the squares are inbound and do not contain an obstacle.
+
+Finder can process all the obstacles in the grid and create a path to the delivery point.
+Computing adjacent and diagonal squares with ability to identify obstacles that can be removed to obtain the shortest path to the delivery point, while removing the least number of obstacles to be removed to attain this.
+
 ## To run:
 
 ```bash
