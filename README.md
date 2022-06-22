@@ -33,3 +33,7 @@ python main.py --grid-width 6 --grid-height 6 --start (0,0) --end (1,5) --obstac
 python main.py --grid-width 6 --grid-height 6 --start (0,0) --end (1,5) --obstacle (0,1) --obstacle (1,0) --random-obstacles 2
 
 python main.py --grid-width 6 --grid-height 6 --start (0,0) --end (3,5) --obstacle (2,1) --obstacle (1,2)
+
+python main.py --grid-width 3 --grid-height 3 --start (0,0) --end (2,2) --obstacle (0,1) --obstacle (1,0) --obstacle (1,1) --obstacles-unremoveable
+
+python main.py --grid-width 3 --grid-height 3 --start (0,0) --end (2,2) --obstacle (0,1) --obstacle (1,0) --obstacle (1,1)
