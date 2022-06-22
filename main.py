@@ -24,7 +24,7 @@ if __name__ == "__main__":
         amazon_pathfinder.add_obstacles([tuple(obstacle) for obstacle in args.obstacle])
         amazon_pathfinder.add_random_obstacles(args.random_obstacles)
 
-        print(f"\nCreated grid of size {args.grid_width}x{args.grid_width}")
+        print(f"\nCreated grid of size {args.grid_height}x{args.grid_width}")
         print(f"Starting point: {tuple(args.start)}")
         print(f"Delivery point: {tuple(args.end)}")
         print(f"Obstacles are placed at: {amazon_pathfinder.obstacles}")
