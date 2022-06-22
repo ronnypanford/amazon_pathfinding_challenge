@@ -6,6 +6,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Amazon Path Finder")
+    
     parser.add_argument("--grid-width", type=int, help="Grid width", default=5)
     parser.add_argument("--grid-height", type=int, help="Grid height", default=5)
     parser.add_argument("--start", nargs='+', type=int, help="Starting coordinates. eg. --start (0,0)", default=(0,0))
@@ -13,6 +14,8 @@ if __name__ == "__main__":
     parser.add_argument("--obstacle", nargs='+', type=int, action='append', help="Coordinate of an obstacle. eg. --obstacle (1,1)", default=[])
     parser.add_argument("--random-obstacles", type=int, help="Number of obstacles", default=0)
     parser.add_argument("--path-factor", type=str, help="Method to select the shortest path by: steps, distance", default="distance")
+    parser.add_argument("--obstacles-unremovable", action='store_true', help="Include flag to restrict path without suggestions to remove obstacles", default=False)
+    
     args = parser.parse_args()
 
     amazon_pathfinder = PathFinder([])
@@ -30,6 +33,6 @@ if __name__ == "__main__":
         print(f"Obstacles are placed at: {amazon_pathfinder.obstacles}")
         print(f"Finding shortest path by: least {args.path_factor}")
 
-        amazon_pathfinder.shortest_path(allow_obstacle_elimination=False, filter=args.path_factor)
+        amazon_pathfinder.shortest_path(allow_obstacle_elimination=not(args.obstacles_unremovable), filter=args.path_factor)
     except AssertionError:
         pass

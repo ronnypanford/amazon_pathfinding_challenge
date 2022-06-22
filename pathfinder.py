@@ -5,7 +5,7 @@
 
 from math import sqrt
 import random
-from collections import deque, namedtuple
+from collections import namedtuple
 
 
 class PathFinder:
@@ -180,9 +180,9 @@ class PathFinder:
         """
         The function finds all paths from the start point to the end point, then sorts the paths by
         least obstacles encountered, then by least distance taken or least steps taken. 
-        
+
         The function then returns the shortest path.
-        
+
         :param allow_obstacle_elimination: If True, then the algorithm will return the shortest path
         that can be taken if obstacles are removed. If False, then the algorithm will return the
         shortest path that can be taken without removing any obstacles
@@ -195,7 +195,7 @@ class PathFinder:
         # Prioritize selecting the shortest path with no obstacles
         # If all paths are blocked, then select the shortest path (either by distance of steps) with least obstacles
 
-        self.find_all_paths()
+        self.find_all_paths(paths_with_obstacles = allow_obstacle_elimination)
 
         if len(self.all_paths) == 0:
             print("\nNO PATH FOUND\n")
@@ -219,7 +219,6 @@ class PathFinder:
                 selected_path = ()
                 return selected_path
 
-        
         if selected_path[2]:
             print("\nUNABLE TO REACH DELIVERY POINT")
             print(
@@ -227,15 +226,14 @@ class PathFinder:
         else:
             print("\nSHORTEST PATH FOUND")
             print("The path is: " + str([(path_step.row, path_step.column)
-                                            for path_step in selected_path[3]]))
+                                         for path_step in selected_path[3]]))
             print(f"The path length is: {selected_path[0]}")
             print(f"The path steps taken is: {selected_path[1]}")
             print(f"The path obstacles encountered is: {selected_path[2]}\n")
 
-
         return selected_path
 
-    def find_all_paths(self):
+    def find_all_paths(self, paths_with_obstacles: bool):
         """
         It finds all possible paths from the starting point to the delivery point
         :return: a list of tuples. Each tuple contains the following information:
@@ -259,11 +257,11 @@ class PathFinder:
         visited_path = []
         path = []
 
-        self.find_path(start, end, path, visited_data, visited_path)
+        self.find_path(start, end, path, visited_data, visited_path, paths_with_obstacles)
 
         return self.all_paths
 
-    def find_path(self, start: tuple, end: tuple, path: list[tuple], visited_data: list[tuple], visited_path: list[tuple]) -> list[tuple]:
+    def find_path(self, start: tuple, end: tuple, path: list[tuple], visited_data: list[tuple], visited_path: list[tuple], paths_with_obstacles: bool) -> list[tuple]:
         """
         This function finds all possible paths from the starting point to the delivery point.
         The paths are represented as a list of tuples.
@@ -301,9 +299,48 @@ class PathFinder:
             self.all_paths.append(path_summary)
 
         else:
-            # If current step is not destination
-            # Recur for all the steps adjacent to this vertex
+
+            next_closest_to_end_distance = None
+            next_with_obstacle_closest_to_end_distance = None
+
+            next_closest_to_end_steps = None
+            next_with_obstacle_closest_to_end_steps = None
+
             for next_row, next_column in self._get_adjacent_spaces(start.row, start.column):
+
+                if not paths_with_obstacles:
+                    if self.grid[next_row][next_column] == 1:
+                        continue
+
+                distance_to_end = self._calculate_distance_between_points(
+                    (next_row, next_column), (end.row, end.column))
+                steps_to_end = self._calculate_shortest_steps_between_points(
+                    (next_row, next_column), (end.row, end.column))
+
+                if self.grid[next_row][next_column] == 1:
+                    if next_with_obstacle_closest_to_end_distance == None:
+                        next_with_obstacle_closest_to_end_distance = distance_to_end
+                    elif distance_to_end <= next_with_obstacle_closest_to_end_distance:
+                        next_with_obstacle_closest_to_end_distance = distance_to_end
+                    elif next_with_obstacle_closest_to_end_steps == None:
+                        next_with_obstacle_closest_to_end_steps = steps_to_end
+                    elif steps_to_end <= next_with_obstacle_closest_to_end_steps:
+                        next_with_obstacle_closest_to_end_steps = steps_to_end
+                    else:
+                        # Do not go with that adjacent point as it is not optimum
+                        continue
+                else:
+                    if next_closest_to_end_distance == None:
+                        next_closest_to_end_distance = distance_to_end
+                    elif distance_to_end <= next_closest_to_end_distance:
+                        next_closest_to_end_distance = distance_to_end
+                    elif next_closest_to_end_steps == None:
+                        next_closest_to_end_steps = steps_to_end
+                    elif steps_to_end <= next_closest_to_end_steps:
+                        next_closest_to_end_steps = steps_to_end
+                    else:
+                        # Do not go with that adjacent point as it is not optimum
+                        continue
 
                 distance = self._calculate_distance_between_points(
                     (start.row, start.column), (next_row, next_column))
@@ -337,7 +374,8 @@ class PathFinder:
                         end=end,
                         path=path,
                         visited_data=visited_data,
-                        visited_path=visited_path
+                        visited_path=visited_path,
+                        paths_with_obstacles=paths_with_obstacles
                     )
         # Remove current vertex from path[] and mark it as unvisited
         path.pop()
@@ -375,3 +413,25 @@ class PathFinder:
         :return: The distance between two points.
         """
         return float(sqrt((point_1[0] - point_2[0])**2 + (point_1[1] - point_2[1])**2))
+
+    def _calculate_shortest_steps_between_points(self, point_1: tuple, point_2: tuple) -> float:
+        horizontal_steps = abs(point_2[0] - point_1[0])
+        vertical_steps = abs(point_2[1] - point_1[1])
+        least_steps = 0
+
+        if horizontal_steps > vertical_steps:
+            # Go diagonally by the count of vertical steps then continue straight
+            # in the remaining horizontal to the point
+            least_steps += vertical_steps
+            least_steps += horizontal_steps-vertical_steps
+        elif vertical_steps > horizontal_steps:
+            # Go diagonally by the count of horizontal steps then continue straight
+            # in the remaining vertical to the point
+            least_steps += horizontal_steps
+            least_steps += vertical_steps-horizontal_steps
+        else:
+            least_steps = horizontal_steps  # Least steps is going diagonal
+            # Since the vertical and horizontal steps are the same going diagonal
+            # by either of their amount would get you to the end
+        
+        return least_steps
