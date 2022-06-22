@@ -16,15 +16,13 @@ Pass the following where necessary
  --end: The ending point of the pathfinder (delivery destination). e.g --end (5,5)
 
 *OPTIONAL*
- --obstacle: Use this to place an obstacle on the grid (Can be used multiple times to place multiple obstacles). 
+ --obstacle: Use this to place an obstacle on the grid (Can be used multiple times to place multiple obstacles).
         e.g. --obstacle (0,0)      .............. ....for a single obstacle
             --obstacle (0,0) --obstacle (1,1)......... for multiple obstacles
 
  --random-obstacles: Use this to add random obstacles on the grid. e.g. --random-obstacles 10 where 10 is the number of obstacles to place
 
  --obstacle-unremoveable: Raise this flag to make obstacles unremoveable. Thus no paths can suggest an obstacle to be removed if it cannot find a clear path.
-
-
 
 Example usage:
 
