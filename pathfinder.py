@@ -178,13 +178,22 @@ class PathFinder:
 
     def shortest_path(self, allow_obstacle_elimination: bool, filter: str) -> list[list[tuple]]:
         """
-        This function returns a list of all possible paths from the starting point to the delivery point.
-        The paths are represented as a list of tuples.
+        The function finds all paths from the start point to the end point, then sorts the paths by
+        least obstacles encountered, then by least distance taken or least steps taken. 
+        
+        The function then returns the shortest path.
+        
+        :param allow_obstacle_elimination: If True, then the algorithm will return the shortest path
+        that can be taken if obstacles are removed. If False, then the algorithm will return the
+        shortest path that can be taken without removing any obstacles
+        :type allow_obstacle_elimination: bool
+        :param filter: str
+        :type filter: str
+        :return: The shortest path found, if any.
         """
 
         # Prioritize selecting the shortest path with no obstacles
-        # If all paths are blocked, then select the shortest path (either by distance of steps) with obstacles,
-        # Either by means of least obstacles encountered or least steps taken
+        # If all paths are blocked, then select the shortest path (either by distance of steps) with least obstacles
 
         self.find_all_paths()
 
