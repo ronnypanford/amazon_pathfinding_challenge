@@ -27,21 +27,15 @@ def test_phase_one():
     print("Delivery point: (9,9)")
     print(f"Obstacles are placed at: {amazon_pathfinder.obstacles}")
 
-    print("Finding shortest path by: least distance")
-    amazon_pathfinder.shortest_path(
-        allow_obstacle_elimination=False, filter="distance")
+    amazon_pathfinder.shortest_path(allow_obstacle_elimination=False)
 
-    print("Finding shortest path by: least steps")
-    amazon_pathfinder.shortest_path(
-        allow_obstacle_elimination=False, filter="steps")
 
 
 def test_phase_two():
     """
     It creates a grid of size 10x10, sets the starting point to (0,0),
     sets the delivery point to (9,9), adds 4 obstacles, adds 20 random
-    obstacles, finds the shortest path by least distance, and finds 
-    the shortest path by least steps
+    obstacles, finds the shortest path by least steps.
     """
     amazon_pathfinder = PathFinder([])
 
@@ -66,23 +60,16 @@ def test_phase_two():
     print("Delivery point: (9,9)")
     print(f"Obstacles are placed at: {amazon_pathfinder.obstacles}")
 
-    print("Finding shortest path by: least distance")
-    amazon_pathfinder.shortest_path(
-        allow_obstacle_elimination=False, filter="distance")
-
-    print("Finding shortest path by: least steps")
-    amazon_pathfinder.shortest_path(
-        allow_obstacle_elimination=False, filter="steps")
+    amazon_pathfinder.shortest_path(allow_obstacle_elimination=False)
 
 
 def test_phase_bonus():
     """
     It creates a grid of size 10x10, sets the starting point to (0,0),
     sets the delivery point to (9,9), adds 4 obstacles, adds 20 random
-    obstacles, finds the shortest path by least distance, and finds the
-    shortest path by least steps. If no path found it allows for the
-    shortest path through pbstacles and sggests the shortest path with
-    the least obstacles to be removed.
+    obstacles, finds the shortest path by least steps. If no path found 
+    it allows for the shortest path through pbstacles and sggests 
+    the shortest path with the least obstacles to be removed.
     """
     amazon_pathfinder = PathFinder([])
 
@@ -107,13 +94,7 @@ def test_phase_bonus():
     print("Delivery point: (9,9)")
     print(f"Obstacles are placed at: {amazon_pathfinder.obstacles}")
 
-    print("Finding shortest path by: least distance")
-    amazon_pathfinder.shortest_path(
-        allow_obstacle_elimination=True, filter="distance")
-
-    print("Finding shortest path by: least steps")
-    amazon_pathfinder.shortest_path(
-        allow_obstacle_elimination=True, filter="steps")
+    amazon_pathfinder.shortest_path(allow_obstacle_elimination=True)
 
 
 # if __name__ == "__main__":

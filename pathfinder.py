@@ -176,60 +176,44 @@ class PathFinder:
         except AssertionError:
             print("The delivery point must be within the grid")
 
-    def shortest_path(self, allow_obstacle_elimination: bool, filter: str) -> list[list[tuple]]:
+    def shortest_path(self, allow_obstacle_elimination: bool) -> list[list[tuple]]:
         """
-        The function finds all paths from the start point to the end point, then sorts the paths by
-        least obstacles encountered, then by least distance taken or least steps taken. 
-
-        The function then returns the shortest path.
-
-        :param allow_obstacle_elimination: If True, then the algorithm will return the shortest path
-        that can be taken if obstacles are removed. If False, then the algorithm will return the
-        shortest path that can be taken without removing any obstacles
+        The function finds all paths from the start to the end, sorts them by least obstacles
+        encountered, then by least steps taken, and returns the shortest path
+        
+        :param allow_obstacle_elimination: bool
         :type allow_obstacle_elimination: bool
-        :param filter: str
-        :type filter: str
-        :return: The shortest path found, if any.
+        :return: The shortest path
         """
-
-        # Prioritize selecting the shortest path with no obstacles
-        # If all paths are blocked, then select the shortest path (either by distance of steps) with least obstacles
-
-        self.find_all_paths(paths_with_obstacles = allow_obstacle_elimination)
+        self.find_all_paths(paths_with_obstacles=allow_obstacle_elimination)
 
         if len(self.all_paths) == 0:
             print("\nNO PATH FOUND\n")
             selected_path = ()
             return selected_path
 
-        if filter == "distance":
-            # Sort by least obstacles encountered, then by least distance taken
-            sorted_paths = sorted(
-                self.all_paths, key=lambda path: (path[2], path[0]))
-        elif filter == "steps":
-            # Sort by least obstacles encountered, then by least steps taken
-            sorted_paths = sorted(
-                self.all_paths, key=lambda path: (path[2], path[1]))
+        # Sort by least obstacles encountered, then by least steps taken
+        sorted_paths = sorted(
+            self.all_paths, key=lambda path: (path[1], path[0]))
 
         selected_path = sorted_paths[0]
 
         if not allow_obstacle_elimination:
-            if selected_path[2] > 0:
-                print("\nNO PATH FOUND\n")
+            if selected_path[1] > 0:
+                print("\nUNABLE TO REACH DELIVERY POINT")
                 selected_path = ()
                 return selected_path
 
-        if selected_path[2]:
+        if selected_path[1]:
             print("\nUNABLE TO REACH DELIVERY POINT")
             print(
-                f"For the shortest potential path, remove obstacles at: {selected_path[3].obstacles_eliminated}")
+                f"For the shortest potential path, remove obstacles at: {selected_path[2][-1].obstacles_eliminated}")
         else:
             print("\nSHORTEST PATH FOUND")
             print("The path is: " + str([(path_step.row, path_step.column)
-                                         for path_step in selected_path[3]]))
-            print(f"The path length is: {selected_path[0]}")
-            print(f"The path steps taken is: {selected_path[1]}")
-            print(f"The path obstacles encountered is: {selected_path[2]}\n")
+                                         for path_step in selected_path[2]]))
+            print(f"The path steps taken are: {selected_path[0]}")
+            print(f"The path obstacles encountered are: {selected_path[1]}\n")
 
         return selected_path
 
@@ -245,19 +229,21 @@ class PathFinder:
              "parent_row",
              "parent_column",
              "obstacles_eliminated",
-             "steps", "distance"]
+             "steps"
+            ]
         )
 
         start = step(
-            self.starting_point[0], self.starting_point[1], None, None, [], 0, 0)
+            self.starting_point[0], self.starting_point[1], None, None, [], 0)
         end = step(
-            self.delivery_point[0], self.delivery_point[1], None, None, [], 0, 0)
+            self.delivery_point[0], self.delivery_point[1], None, None, [], 0)
 
         visited_data = []
         visited_path = []
         path = []
 
-        self.find_path(start, end, path, visited_data, visited_path, paths_with_obstacles)
+        self.find_path(start, end, path, visited_data,
+                       visited_path, paths_with_obstacles)
 
         return self.all_paths
 
@@ -274,7 +260,8 @@ class PathFinder:
              "parent_row",
              "parent_column",
              "obstacles_eliminated",
-             "steps", "distance"]
+             "steps"
+             ]
         )
 
         visited_data.append(start)
@@ -285,13 +272,11 @@ class PathFinder:
         if (start.row, start.column) == (end.row, end.column):
             delivery_point_arrived = start
 
-            distance_covered_by_path = delivery_point_arrived.distance
             steps_covered_by_path = delivery_point_arrived.steps
             obstacles_eliminated_by_path = len(
                 delivery_point_arrived.obstacles_eliminated)
 
             path_summary = (
-                distance_covered_by_path,
                 steps_covered_by_path,
                 obstacles_eliminated_by_path,
                 path.copy()
@@ -299,9 +284,6 @@ class PathFinder:
             self.all_paths.append(path_summary)
 
         else:
-
-            next_closest_to_end_distance = None
-            next_with_obstacle_closest_to_end_distance = None
 
             next_closest_to_end_steps = None
             next_with_obstacle_closest_to_end_steps = None
@@ -312,17 +294,11 @@ class PathFinder:
                     if self.grid[next_row][next_column] == 1:
                         continue
 
-                distance_to_end = self._calculate_distance_between_points(
-                    (next_row, next_column), (end.row, end.column))
                 steps_to_end = self._calculate_shortest_steps_between_points(
                     (next_row, next_column), (end.row, end.column))
 
                 if self.grid[next_row][next_column] == 1:
-                    if next_with_obstacle_closest_to_end_distance == None:
-                        next_with_obstacle_closest_to_end_distance = distance_to_end
-                    elif distance_to_end <= next_with_obstacle_closest_to_end_distance:
-                        next_with_obstacle_closest_to_end_distance = distance_to_end
-                    elif next_with_obstacle_closest_to_end_steps == None:
+                    if next_with_obstacle_closest_to_end_steps == None:
                         next_with_obstacle_closest_to_end_steps = steps_to_end
                     elif steps_to_end <= next_with_obstacle_closest_to_end_steps:
                         next_with_obstacle_closest_to_end_steps = steps_to_end
@@ -330,20 +306,13 @@ class PathFinder:
                         # Do not go with that adjacent point as it is not optimum
                         continue
                 else:
-                    if next_closest_to_end_distance == None:
-                        next_closest_to_end_distance = distance_to_end
-                    elif distance_to_end <= next_closest_to_end_distance:
-                        next_closest_to_end_distance = distance_to_end
-                    elif next_closest_to_end_steps == None:
+                    if next_closest_to_end_steps == None:
                         next_closest_to_end_steps = steps_to_end
                     elif steps_to_end <= next_closest_to_end_steps:
                         next_closest_to_end_steps = steps_to_end
                     else:
                         # Do not go with that adjacent point as it is not optimum
                         continue
-
-                distance = self._calculate_distance_between_points(
-                    (start.row, start.column), (next_row, next_column))
 
                 if self.grid[next_row][next_column] == 1:  # Next step is an obstacle
                     next_step = step(
@@ -353,7 +322,6 @@ class PathFinder:
                         parent_column=start.column,
                         obstacles_eliminated=list(
                             set(start.obstacles_eliminated+[(next_row, next_column)])),
-                        distance=start.distance + distance,
                         steps=start.steps + 1
                     )
                 else:
@@ -364,7 +332,6 @@ class PathFinder:
                         parent_column=start.column,
                         obstacles_eliminated=list(
                             set(start.obstacles_eliminated)),
-                        distance=start.distance + distance,
                         steps=start.steps + 1
                     )
 
@@ -402,18 +369,6 @@ class PathFinder:
                     if (row + row_offset, col + col_offset) != (row, col):
                         yield (row + row_offset, col + col_offset)
 
-    def _calculate_distance_between_points(self, point_1: tuple, point_2: tuple) -> float:
-        """
-        It takes two points as input and returns the distance between them
-
-        :param point_1: tuple
-        :type point_1: tuple
-        :param point_2: tuple
-        :type point_2: tuple
-        :return: The distance between two points.
-        """
-        return float(sqrt((point_1[0] - point_2[0])**2 + (point_1[1] - point_2[1])**2))
-
     def _calculate_shortest_steps_between_points(self, point_1: tuple, point_2: tuple) -> float:
         horizontal_steps = abs(point_2[0] - point_1[0])
         vertical_steps = abs(point_2[1] - point_1[1])
@@ -433,5 +388,5 @@ class PathFinder:
             least_steps = horizontal_steps  # Least steps is going diagonal
             # Since the vertical and horizontal steps are the same going diagonal
             # by either of their amount would get you to the end
-        
+
         return least_steps
