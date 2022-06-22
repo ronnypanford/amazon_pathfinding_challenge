@@ -3,7 +3,6 @@
 # The pathfinder will find the shortest path between two points on the grid.
 # The pathfinder will return the path as a list of coordinates.
 
-from collections import defaultdict
 from math import sqrt
 import random
 from collections import deque, namedtuple
@@ -116,11 +115,13 @@ class PathFinder:
         try:
             assert num_obstacles <= len(free_spaces)
         except AssertionError:
-            print("The grid does not have enough space for the obstacles")
+            print("The grid does not have enough free space for the obstacles")
+            raise
 
         for i in range(num_obstacles):
             random_obstacle = random.choice(free_spaces)
             self.grid[random_obstacle[0]][random_obstacle[1]] = 1
+            self.obstacles.append(random_obstacle)
             free_spaces.remove(random_obstacle)
 
     def set_starting_point(self, starting_point: tuple) -> None:
@@ -175,7 +176,7 @@ class PathFinder:
         except AssertionError:
             print("The delivery point must be within the grid")
 
-    def shortest_path(self, with_obstacle: bool, filter: str) -> list[list[tuple]]:
+    def shortest_path(self, allow_obstacle_elimination: bool, filter: str) -> list[list[tuple]]:
         """
         This function returns a list of all possible paths from the starting point to the delivery point.
         The paths are represented as a list of tuples.
@@ -187,7 +188,43 @@ class PathFinder:
 
         self.find_all_paths()
 
-        return [[]]
+        if len(self.all_paths) == 0:
+            print("\nNO PATH FOUND\n")
+            selected_path = ()
+            return selected_path
+
+        if filter == "distance":
+            # Sort by least obstacles encountered, then by least distance taken
+            sorted_paths = sorted(
+                self.all_paths, key=lambda path: (path[2], path[0]))
+        elif filter == "steps":
+            # Sort by least obstacles encountered, then by least steps taken
+            sorted_paths = sorted(
+                self.all_paths, key=lambda path: (path[2], path[1]))
+
+        selected_path = sorted_paths[0]
+
+        if not allow_obstacle_elimination:
+            if selected_path[2] > 0:
+                print("\nNO PATH FOUND\n")
+                selected_path = ()
+                return selected_path
+
+        
+        if selected_path[2]:
+            print("\nUNABLE TO REACH DELIVERY POINT")
+            print(
+                f"For the shortest potential path, remove obstacles at: {selected_path[3].obstacles_eliminated}")
+        else:
+            print("\nSHORTEST PATH FOUND")
+            print("The path is: " + str([(path_step.row, path_step.column)
+                                            for path_step in selected_path[3]]))
+            print(f"The path length is: {selected_path[0]}")
+            print(f"The path steps taken is: {selected_path[1]}")
+            print(f"The path obstacles encountered is: {selected_path[2]}\n")
+
+
+        return selected_path
 
     def find_all_paths(self):
         """
@@ -240,15 +277,16 @@ class PathFinder:
 
         if (start.row, start.column) == (end.row, end.column):
             delivery_point_arrived = start
-            
+
             distance_covered_by_path = delivery_point_arrived.distance
             steps_covered_by_path = delivery_point_arrived.steps
-            obstacles_eliminated_by_path = len(delivery_point_arrived.obstacles_eliminated)
+            obstacles_eliminated_by_path = len(
+                delivery_point_arrived.obstacles_eliminated)
 
             path_summary = (
-                distance_covered_by_path, 
-                steps_covered_by_path, 
-                obstacles_eliminated_by_path, 
+                distance_covered_by_path,
+                steps_covered_by_path,
+                obstacles_eliminated_by_path,
                 path.copy()
             )
             self.all_paths.append(path_summary)
