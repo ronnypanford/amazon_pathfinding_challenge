@@ -6,6 +6,7 @@
 from math import sqrt
 import random
 from collections import namedtuple
+import time
 
 
 class PathFinder:
@@ -180,12 +181,20 @@ class PathFinder:
         """
         The function finds all paths from the start to the end, sorts them by least obstacles
         encountered, then by least steps taken, and returns the shortest path
-        
+
         :param allow_obstacle_elimination: bool
         :type allow_obstacle_elimination: bool
         :return: The shortest path
         """
+        start_time = time.time()
         self.find_all_paths(paths_with_obstacles=allow_obstacle_elimination)
+        end_time = time.time()
+
+        elapsed_time = end_time - start_time
+
+        print(
+            f"\nOf the many paths processed, found viable paths are: {len(self.all_paths)}")
+        print(f"The time taken to find all viable paths is: {elapsed_time}s")
 
         if len(self.all_paths) == 0:
             print("\nNO PATH FOUND\n")
@@ -230,7 +239,7 @@ class PathFinder:
              "parent_column",
              "obstacles_eliminated",
              "steps"
-            ]
+             ]
         )
 
         start = step(
