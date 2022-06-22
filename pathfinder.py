@@ -237,8 +237,8 @@ class PathFinder:
 
     def find_all_paths(self):
         """
-        This function finds all possible paths from the starting point to the delivery point.
-        The paths are represented as a list of tuples.
+        It finds all possible paths from the starting point to the delivery point
+        :return: a list of tuples. Each tuple contains the following information:
         """
         step = namedtuple(
             "step",
