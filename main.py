@@ -14,10 +14,10 @@ if __name__ == "__main__":
     parser.add_argument("--obstacle", nargs='+', type=int, action='append', help="Coordinate of an obstacle. eg. --obstacle (1,1)", default=[])
     parser.add_argument("--random-obstacles", type=int, help="Number of obstacles", default=0)
     parser.add_argument("--obstacles-unremovable", action='store_true', help="Include flag to restrict path without suggestions to remove obstacles", default=False)
-    
+    parser.add_argument("--visualize", action='store_true', help="Include flag to visualize the pathfinder", default=False)
     args = parser.parse_args()
 
-    amazon_pathfinder = PathFinder([])
+    amazon_pathfinder = PathFinder(visualize=args.visualize)
     amazon_pathfinder.create_grid(args.grid_width, args.grid_height)
     amazon_pathfinder.set_starting_point(tuple(args.start))
     amazon_pathfinder.set_delivery_point(tuple(args.end))
@@ -34,3 +34,7 @@ if __name__ == "__main__":
         amazon_pathfinder.shortest_path(allow_obstacle_elimination=not(args.obstacles_unremovable))
     except AssertionError:
         pass
+
+    if args.visualize:
+        while True:
+            amazon_pathfinder.pathfinder_visualizer.check_exit_clicked()

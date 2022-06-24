@@ -7,6 +7,7 @@ from math import sqrt
 import random
 from collections import namedtuple
 import time
+from pathfinder_visualizer import PathFinderVisualizer
 
 
 class PathFinder:
@@ -21,8 +22,11 @@ class PathFinder:
 
     """
 
-    def __init__(self, grid: list[list[int]]) -> None:
-        self.grid = grid
+    def __init__(self, visualize=False) -> None:
+        self.visualize = visualize
+        if self.visualize:
+            self.pathfinder_visualizer = PathFinderVisualizer()
+        self.grid = []
         self.all_paths = []
         self.obstacles = []
         self.starting_point = (0, 0)
@@ -62,6 +66,11 @@ class PathFinder:
                 grid[row].append(0)
         self.grid = grid
 
+        if self.visualize:
+            self.pathfinder_visualizer.draw_grid(
+                grid_width=width, grid_height=height
+            )
+
         # Default the starting and delivery positions to both far corners of the grid
         self.starting_point = (0, 0)
         self.delivery_point = (len(self.grid)-1, len(self.grid[0])-1)
@@ -93,6 +102,10 @@ class PathFinder:
             for obstacle in obstacles:
                 self.grid[obstacle[0]][obstacle[1]] = 1
                 self.obstacles.append(obstacle)
+                if self.visualize:
+                    self.pathfinder_visualizer.show_obstacle_point(
+                        obstacle[0], obstacle[1]
+                    )
 
     def add_random_obstacles(self, num_obstacles: int) -> None:
         """
@@ -124,6 +137,10 @@ class PathFinder:
             self.grid[random_obstacle[0]][random_obstacle[1]] = 1
             self.obstacles.append(random_obstacle)
             free_spaces.remove(random_obstacle)
+            if self.visualize:
+                self.pathfinder_visualizer.show_obstacle_point(
+                    random_obstacle[0], random_obstacle[1]
+                )
 
     def set_starting_point(self, starting_point: tuple) -> None:
         """
@@ -146,6 +163,10 @@ class PathFinder:
                 print("The starting point must not be on an obstacle on the grid")
 
             self.starting_point = starting_point
+            if self.visualize:
+                self.pathfinder_visualizer.show_start_point(
+                    starting_point[0], starting_point[1]
+                )
         except AssertionError:
             print("The starting point must be within the grid")
 
@@ -174,6 +195,10 @@ class PathFinder:
                 print("The delivery point cannot be the same starting location")
 
             self.delivery_point = delivery_point
+            if self.visualize:
+                self.pathfinder_visualizer.show_end_point(
+                    delivery_point[0], delivery_point[1]
+                )
         except AssertionError:
             print("The delivery point must be within the grid")
 
@@ -224,6 +249,8 @@ class PathFinder:
             print(f"The path steps taken are: {selected_path[0]}")
             print(f"The path obstacles encountered are: {selected_path[1]}\n")
 
+            if self.visualize:
+                self.pathfinder_visualizer.show_path(selected_path[2], selected_path=True)
         return selected_path
 
     def find_all_paths(self, paths_with_obstacles: bool):
@@ -291,6 +318,9 @@ class PathFinder:
                 path.copy()
             )
             self.all_paths.append(path_summary)
+
+            if self.visualize:
+                self.pathfinder_visualizer.show_path(path.copy())
 
         else:
 

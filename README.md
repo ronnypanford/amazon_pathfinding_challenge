@@ -47,6 +47,8 @@ Pass the following where necessary
 
  --obstacle-unremoveable: Raise this flag to make obstacles unremoveable. Thus no paths can suggest an obstacle to be removed if it cannot find a clear path.
 
+ --visualize: Use this to visualize the grid and path as the pathfinder processses the grid for shortest path.
+
 ## Example usage:
 
 ```bash
